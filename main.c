@@ -79,13 +79,31 @@ unsigned long fps_count_256(unsigned char *str, unsigned long len, unsigned char
         prefix += str[i] == w;
     }
 
-    for (unsigned long end = len - 32; i < end; i += 32) {
-        __m256i p0 = _mm256_load_si256((const __m256i*)(str + i));
+    for (unsigned long end = len - 128; i < end; i += 128) {
+        __m256i p0 = _mm256_load_si256((const __m256i*)(str + i + 32 * 0));
+        __m256i p1 = _mm256_load_si256((const __m256i*)(str + i + 32 * 1));
+        __m256i p2 = _mm256_load_si256((const __m256i*)(str + i + 32 * 2));
+        __m256i p3 = _mm256_load_si256((const __m256i*)(str + i + 32 * 3));
         __m256i r0 = _mm256_cmpeq_epi8(p0, pat);
+        __m256i r1 = _mm256_cmpeq_epi8(p1, pat);
+        __m256i r2 = _mm256_cmpeq_epi8(p2, pat);
+        __m256i r3 = _mm256_cmpeq_epi8(p3, pat);
         res += _popcnt64(_mm256_extract_epi64(r0, 0));
         res += _popcnt64(_mm256_extract_epi64(r0, 1));
         res += _popcnt64(_mm256_extract_epi64(r0, 2));
         res += _popcnt64(_mm256_extract_epi64(r0, 3));
+        res += _popcnt64(_mm256_extract_epi64(r1, 0));
+        res += _popcnt64(_mm256_extract_epi64(r1, 1));
+        res += _popcnt64(_mm256_extract_epi64(r1, 2));
+        res += _popcnt64(_mm256_extract_epi64(r1, 3));
+        res += _popcnt64(_mm256_extract_epi64(r2, 0));
+        res += _popcnt64(_mm256_extract_epi64(r2, 1));
+        res += _popcnt64(_mm256_extract_epi64(r2, 2));
+        res += _popcnt64(_mm256_extract_epi64(r2, 3));
+        res += _popcnt64(_mm256_extract_epi64(r3, 0));
+        res += _popcnt64(_mm256_extract_epi64(r3, 1));
+        res += _popcnt64(_mm256_extract_epi64(r3, 2));
+        res += _popcnt64(_mm256_extract_epi64(r3, 3));
     }
 
     res /= 8;
