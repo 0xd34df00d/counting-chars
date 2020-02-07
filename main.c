@@ -67,8 +67,35 @@ unsigned long fps_count_cmpestrm(unsigned char *str, unsigned long len, unsigned
     return res;
 }
 
+__attribute__((target("avx2")))
 unsigned long fps_count_256(unsigned char *str, unsigned long len, unsigned char w) {
+    __m256i pat = _mm256_set1_epi8(w);
 
+    unsigned long prefix, res = 0;
+
+    size_t i = 0;
+
+    for (; i < len && (intptr_t)(str + i) % 64; ++i) {
+        prefix += str[i] == w;
+    }
+
+    for (unsigned long end = len - 32; i < end; i += 32) {
+        __m256i p0 = _mm256_load_si256((const __m256i*)(str + i));
+        __m256i r0 = _mm256_cmpeq_epi8(p0, pat);
+        res += _popcnt64(_mm256_extract_epi64(r0, 0));
+        res += _popcnt64(_mm256_extract_epi64(r0, 1));
+        res += _popcnt64(_mm256_extract_epi64(r0, 2));
+        res += _popcnt64(_mm256_extract_epi64(r0, 3));
+    }
+
+    res /= 8;
+    res += prefix;
+
+    for (; i < len; ++i) {
+        res += str[i] == w;
+    }
+
+    return res;
 }
 
 int main(int argc, char **argv) {
@@ -86,6 +113,9 @@ int main(int argc, char **argv) {
         break;
     case 'c':
         ptr = &fps_count_cmpestrm;
+        break;
+    case '2':
+        ptr = &fps_count_256;
         break;
     }
 
