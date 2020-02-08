@@ -1,7 +1,7 @@
 # counting-chars
 Small and stupid benchmarking of ways of counting a char in a big string.
 
-The results, just for the reference (all times are in milliseconds, gcc 9.2):
+The results, just for the reference (all times are in milliseconds, gcc 9.2, input file size is about 1.8 GB):
 
 | CPU                     | Naive / `-O2` | Naive / `-O3 -march=native` | SSE4.2 | AVX2 |
 |:----------------------- | -------------:| ---------------------------:| ------:| ----:|
