@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <pthread.h>
+
 #include <x86intrin.h>
 #include <nmmintrin.h>
 #include <cpuid.h>
@@ -141,4 +143,21 @@ fps_impl_t select_fps_simd_impl() {
 
 	return &fps_count_naive;
 #endif
+}
+
+static fps_impl_t g_fps_simd_impl = NULL;
+static pthread_once_t g_fps_simd_impl_initialized = PTHREAD_ONCE_INIT;
+
+void set_fps_simd_impl() {
+	g_fps_simd_impl = select_fps_simd_impl();
+}
+
+unsigned long fps_count(unsigned char *str, unsigned long len, unsigned char w) {
+	if (len <= 1024) {
+		return fps_count_naive(str, len, w);
+	}
+
+	pthread_once(&g_fps_simd_impl_initialized, set_fps_simd_impl);
+
+	return (*g_fps_simd_impl)(str, len, w);
 }
