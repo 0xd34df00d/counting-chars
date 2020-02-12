@@ -61,7 +61,7 @@ unsigned long fps_count_cmpestrm(unsigned char *str, unsigned long len, unsigned
 }
 
 __attribute__((target("avx2")))
-unsigned long fps_count_256(unsigned char *str, unsigned long len, unsigned char w) {
+unsigned long fps_count_avx2(unsigned char *str, unsigned long len, unsigned char w) {
     __m256i pat = _mm256_set1_epi8(w);
 
     unsigned long prefix = 0, res = 0;

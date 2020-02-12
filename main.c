@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
         ptr = &fps_count_cmpestrm;
         break;
     case '2':
-        ptr = &fps_count_256;
+        ptr = &fps_count_avx2;
         break;
     }
 

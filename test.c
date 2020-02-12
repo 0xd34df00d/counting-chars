@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
 			if (count_c != len) {
 				printf("count_cmpestrm failed: %d %d %d\n", start, len, count_c);
 			}
-			const int count_2 = fps_count_256(str + start, len, ch);
+			const int count_2 = fps_count_avx2(str + start, len, ch);
 			if (count_2 != len) {
 				printf("count_avx2 failed: %d %d %d\n", start, len, count_2);
 			}
