@@ -1,8 +1,10 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <x86intrin.h>
 #include <nmmintrin.h>
+#include <cpuid.h>
 
 unsigned long fps_count_naive(unsigned char *str, unsigned long len, unsigned char w) {
     unsigned long c;
@@ -109,3 +111,34 @@ unsigned long fps_count_avx2(unsigned char *str, unsigned long len, unsigned cha
     return res;
 }
 
+typedef unsigned long (*fps_impl_t) (unsigned char*, unsigned long, unsigned char);
+
+fps_impl_t select_fps_simd_impl() {
+#ifndef __x86_64__
+	return &fps_count_naive;
+#else
+	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
+
+	uint32_t ecx1 = 0;
+	if (__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
+		ecx1 = ecx;
+	}
+
+	const bool has_xsave = ecx1 & (1 << 26);
+	const bool has_popcnt = ecx1 & (1 << 23);
+
+	if (__get_cpuid(7, &eax, &ebx, &ecx, &edx)) {
+		const bool has_avx2 = has_xsave && (ebx & (1 << 5));
+		if (has_avx2 && has_popcnt) {
+			return &fps_count_avx2;
+		}
+	}
+
+	const bool has_sse42 = ecx1 & (1 << 19);
+	if (has_sse42 && has_popcnt) {
+		return &fps_count_cmpestrm;
+	}
+
+	return &fps_count_naive;
+#endif
+}
