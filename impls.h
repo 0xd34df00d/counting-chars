@@ -117,31 +117,31 @@ typedef unsigned long (*fps_impl_t) (unsigned char*, unsigned long, unsigned cha
 
 fps_impl_t select_fps_simd_impl() {
 #ifndef __x86_64__
-	return &fps_count_naive;
+    return &fps_count_naive;
 #else
-	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
+    uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
 
-	uint32_t ecx1 = 0;
-	if (__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
-		ecx1 = ecx;
-	}
+    uint32_t ecx1 = 0;
+    if (__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
+        ecx1 = ecx;
+    }
 
-	const bool has_xsave = ecx1 & (1 << 26);
-	const bool has_popcnt = ecx1 & (1 << 23);
+    const bool has_xsave = ecx1 & (1 << 26);
+    const bool has_popcnt = ecx1 & (1 << 23);
 
-	if (__get_cpuid(7, &eax, &ebx, &ecx, &edx)) {
-		const bool has_avx2 = has_xsave && (ebx & (1 << 5));
-		if (has_avx2 && has_popcnt) {
-			return &fps_count_avx2;
-		}
-	}
+    if (__get_cpuid(7, &eax, &ebx, &ecx, &edx)) {
+        const bool has_avx2 = has_xsave && (ebx & (1 << 5));
+        if (has_avx2 && has_popcnt) {
+            return &fps_count_avx2;
+        }
+    }
 
-	const bool has_sse42 = ecx1 & (1 << 19);
-	if (has_sse42 && has_popcnt) {
-		return &fps_count_cmpestrm;
-	}
+    const bool has_sse42 = ecx1 & (1 << 19);
+    if (has_sse42 && has_popcnt) {
+        return &fps_count_cmpestrm;
+    }
 
-	return &fps_count_naive;
+    return &fps_count_naive;
 #endif
 }
 
@@ -149,15 +149,15 @@ static fps_impl_t g_fps_simd_impl = NULL;
 static pthread_once_t g_fps_simd_impl_initialized = PTHREAD_ONCE_INIT;
 
 void set_fps_simd_impl() {
-	g_fps_simd_impl = select_fps_simd_impl();
+    g_fps_simd_impl = select_fps_simd_impl();
 }
 
 unsigned long fps_count(unsigned char *str, unsigned long len, unsigned char w) {
-	if (len <= 1024) {
-		return fps_count_naive(str, len, w);
-	}
+    if (len <= 1024) {
+        return fps_count_naive(str, len, w);
+    }
 
-	pthread_once(&g_fps_simd_impl_initialized, set_fps_simd_impl);
+    pthread_once(&g_fps_simd_impl_initialized, set_fps_simd_impl);
 
-	return (*g_fps_simd_impl)(str, len, w);
+    return (*g_fps_simd_impl)(str, len, w);
 }

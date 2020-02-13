@@ -28,9 +28,9 @@ int main(int argc, char **argv) {
     case '2':
         ptr = &fps_count_avx2;
         break;
-	case 'd':
-		ptr = &fps_count;
-		break;
+    case 'd':
+        ptr = &fps_count;
+        break;
     }
 
     const int fd = open(argv[1], O_RDONLY);
