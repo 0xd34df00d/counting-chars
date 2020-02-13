@@ -150,10 +150,10 @@ unsigned long fps_count(unsigned char *str, unsigned long len, unsigned char w) 
         return fps_count_naive(str, len, w);
     }
 
-	static thread_local fps_impl_t fps_simd_impl = NULL;
-	if (!fps_simd_impl) {
-		fps_simd_impl = select_fps_simd_impl();
-	}
+    static thread_local fps_impl_t fps_simd_impl = NULL;
+    if (!fps_simd_impl) {
+        fps_simd_impl = select_fps_simd_impl();
+    }
 
     return (*fps_simd_impl)(str, len, w);
 }
