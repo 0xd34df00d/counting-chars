@@ -129,7 +129,7 @@ fps_impl_t select_fps_simd_impl() {
     const bool has_xsave = ecx1 & (1 << 26);
     const bool has_popcnt = ecx1 & (1 << 23);
 
-    if (__get_cpuid(7, &eax, &ebx, &ecx, &edx)) {
+    if (__get_cpuid_count(7, 0, &eax, &ebx, &ecx, &edx)) {
         const bool has_avx2 = has_xsave && (ebx & (1 << 5));
         if (has_avx2 && has_popcnt) {
             return &fps_count_avx2;
