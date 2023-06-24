@@ -20,7 +20,7 @@ __attribute__((target("sse4.2")))
 unsigned long fps_count_cmpestrm(unsigned char *str, unsigned long len, unsigned char w) {
     __m128i pat = _mm_set1_epi8(w);
 
-    const int mode = _SIDD_SBYTE_OPS | _SIDD_CMP_EQUAL_EACH;
+#define mode _SIDD_SBYTE_OPS | _SIDD_CMP_EQUAL_EACH
 
     unsigned long res = 0;
 
@@ -60,6 +60,8 @@ unsigned long fps_count_cmpestrm(unsigned char *str, unsigned long len, unsigned
     for (; i < len; ++i) {
         res += str[i] == w;
     }
+
+#undef mode
 
     return res;
 }
