@@ -1,5 +1,6 @@
 # counting-chars
-Small and stupid benchmarking of ways of counting a char in a big string.
+
+Small and stupid benchmark of counting a char in a big string.
 
 ## `-O2`
 
