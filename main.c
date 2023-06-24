@@ -1,6 +1,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <sys/times.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +9,12 @@
 #include <unistd.h>
 
 #include "impls.h"
+
+unsigned long get_utime() {
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    return usage.ru_utime.tv_sec * 1000000 + usage.ru_utime.tv_usec;
+}
 
 int main(int argc, char **argv) {
     if (argc != 3)
@@ -39,16 +46,13 @@ int main(int argc, char **argv) {
 
     unsigned char *str = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
-    struct tms buf;
-    times(&buf);
-    const clock_t start = buf.tms_utime;
+    const unsigned long t1 = get_utime();
 
     unsigned long cnt = 0;
     for (int i = 0; i < iters; ++i)
         cnt += (*ptr)(str, sb.st_size, w);
 
-    times(&buf);
-    const clock_t end = buf.tms_utime;
+    const unsigned long t2 = get_utime();
 
-    printf("%lu %ld\n", cnt / iters, (end - start) * 1000 / sysconf(_SC_CLK_TCK) / iters);
+    printf("%lu %f\n", cnt / iters, (t2 - t1) / (10 * 1e3));
 }
