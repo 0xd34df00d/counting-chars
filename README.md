@@ -1,7 +1,23 @@
 # counting-chars
 Small and stupid benchmarking of ways of counting a char in a big string.
 
-The results, just for the reference (all times are in milliseconds, gcc 9.2, input file size is about 1.8 GB):
+## `-O2`
+
+| CPU                        | Naive | SSE4.2 | AVX2 |
+|:-------------------------- | -----:| ------:| ----:|
+| Ryzen 9 7950X3D (gcc 13)   |   712 |     88 |   56 |
+| Ryzen 9 7950X3D (clang 16) |   464 |     83 |   45 |
+
+## `-O3 -march=native`
+
+| CPU                        | Naive | SSE4.2 | AVX2 |
+|:-------------------------- | -----:| ------:| ----:|
+| Ryzen 9 7950X3D (gcc 13)   |    76 |     83 |   70 |
+| Ryzen 9 7950X3D (clang 16) |    62 |     81 |   42 |
+
+## Old ones
+
+Older results, with gcc 9.2 and a somewhat different hardware:
 
 | CPU                     | Naive / `-O2` | Naive / `-O3 -march=native` | SSE4.2 | AVX2 |
 |:----------------------- | -------------:| ---------------------------:| ------:| ----:|
@@ -11,7 +27,7 @@ The results, just for the reference (all times are in milliseconds, gcc 9.2, inp
 | Ryzen 7 3700X           |           863 |                         352 |    126 |  116 |
 
 
-## Generating test set
+## Generating test input
 
 We use King James version of the bible from The Large Corpus [here](https://corpus.canterbury.ac.nz/descriptions/),
 concatenated 500 times with itself:
